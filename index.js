@@ -36,14 +36,27 @@ app.get('/herois', async (req, res) => {
 app.post('/herois', async (req, res) => {
     try {
         const { nome, power, level, hp, equipe, editora } = req.body;
-       
-            await pool.query('INSERT INTO herois (nome, power, level, hp, equipe, editora) VALUES ($1, $2, $3, $4, $5, $6)', [nome, power, level, hp, equipe, editora]);
-            res.status(201).send({ mensagem: 'heroi criado com sucesso' });
-        }
+
+        await pool.query('INSERT INTO herois (nome, power, level, hp, equipe, editora) VALUES ($1, $2, $3, $4, $5, $6)', [nome, power, level, hp, equipe, editora]);
+        res.status(201).send({ mensagem: 'heroi criado com sucesso' });
+    }
     catch (error) {
         console.error('erro ao inserir heroi', error);
         res.status(500).send('erro ao inserir heroi');
-    }});
+    }
+});
+
+//deletar herois 
+app.delete('/herois/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await pool.query('DELETE FROM herois WHERE id = $1', [id]);
+        res.status(200).send({ mensagem: 'heroi deletado' });
+    } catch (error) {
+        console.error('erro ao excluir heroi', error);
+        res.status(500).send('erro ao excluir heroi');
+    }
+});
 app.listen(PORT, () => {
     console.log(`servidor rodando na porta ${PORT}⚡`);
 });
