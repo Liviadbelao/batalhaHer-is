@@ -57,6 +57,21 @@ app.delete('/herois/:id', async (req, res) => {
         res.status(500).send('erro ao excluir heroi');
     }
 });
+
+//editar heroi
+app.put('/herois/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nome, power, level, hp, equipe, editora } = req.body;
+  
+            await pool.query('UPDATE herois SET nome = $1, power = $2, level = $3, hp = $4, equipe = $5, editora = $6 WHERE id = $7', [nome, power, level, hp, equipe, editora, id]);
+            res.status(200).send({ mensagem: 'heroi atualizado' });
+        
+    } catch (error) {
+        console.error('erro ao atualizar heroi', error);
+        res.status(500).send('erro ao atualizar heroi');
+    }
+});
 app.listen(PORT, () => {
     console.log(`servidor rodando na porta ${PORT}⚡`);
 });
