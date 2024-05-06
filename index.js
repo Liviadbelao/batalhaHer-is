@@ -18,22 +18,30 @@ app.use(express.json());
 //função batalha de heróis
 const batalha = async (heroi_1, heroi_2) => {
     try {
-        const heroiQuery1 = await pool.query('SELECT * FROM herois WHERE id = $1', [heroi_1]);
-        const heroiQuery2 = await pool.query('SELECT * FROM herois WHERE id = $1', [heroi_2]);
 
-        const heroi1 = heroiQuery1.rows[0];
-        const heroi2 = heroiQuery2.rows[0];
-
-        let vencedor = null;
-        if (heroi1.level > heroi2.level) {
-            vencedor = heroi1;
-        } else if (heroi1.level < heroi2.level) {
-            vencedor = heroi2;
-        } else{
-           return "Empate"
-        }
-
-        return vencedor;
+            const heroiQuery1 = await pool.query('SELECT * FROM herois WHERE id = $1', [heroi_1]);
+            const heroiQuery2 = await pool.query('SELECT * FROM herois WHERE id = $1', [heroi_2]);
+    
+            const heroi1 = heroiQuery1.rows[0];
+            const heroi2 = heroiQuery2.rows[0];
+    
+            let vencedor = null;
+            let perdedor = null;
+    
+            if (heroi1.level > heroi2.level) {
+                vencedor = heroi1.id;
+                perdedor = heroi2.id;
+            } else if (heroi1.level < heroi2.level) {
+                vencedor = heroi2.id;
+                perdedor = heroi1.id;
+            } else {
+                return "Empate";
+            }
+    
+            // Registrar a batalha no histórico
+            await pool.query('INSERT INTO historicoBatalhas (heroi_1, heroi_2, vencedor, perdedor) VALUES ($1, $2, $3, $4)', [heroi_1, heroi_2, vencedor, perdedor]);
+    
+            return vencedor;
     } catch (error) {
         console.error('Erro ao realizar a batalha', error);
         throw error; // Lança o erro para ser tratado na chamada da função
@@ -58,6 +66,20 @@ app.get('/herois', async (req, res) => {
     } catch (error) {
         console.error('erro a obter todos os herois', error);
         res.status(500).send('erro ao obter os herois');
+    }
+});
+// Rota para obter o histórico de batalhas
+app.get('/historico', async (req, res) => {
+    try {
+        const historico = await pool.query('SELECT * FROM historicoBatalhas');
+
+        res.status(200).json({
+            total: historico.rowCount,
+            historico: historico.rows,
+        });
+    } catch (error) {
+        console.error('Erro ao obter o histórico de batalhas', error);
+        res.status(500).send('Erro ao obter o histórico de batalhas');
     }
 });
 // rota criar heroi
@@ -137,7 +159,14 @@ app.get('/herois/:heroi_1/:heroi_2', async (req, res) => {
         if (vencedor === "Empate") {
             res.status(200).send('A batalha terminou em empate!');
         } else if (vencedor) {
-            res.status(200).send(`Vencedor da batalha é ${vencedor.nome}`);
+            const resultado = await pool.query('SELECT * FROM herois WHERE id = $1', [vencedor]);
+            const resultadoTodo = await pool.query('SELECT * FROM historicoBatalhas WHERE id = $1', [vencedor]);
+          
+            res.status(200).send({
+                reultado: resultadoTodo.rows,
+                vencedor: resultado.rows[0].nome,
+                vencedorLevel: resultado.rows[0].level
+            });
         } else {
             res.status(404).send('Heróis não encontrados');
         }
