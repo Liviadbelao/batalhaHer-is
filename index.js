@@ -71,7 +71,7 @@ app.get('/herois', async (req, res) => {
 // Rota para obter o histórico de batalhas
 app.get('/historico', async (req, res) => {
     try {
-        const historico = await pool.query('SELECT * FROM historicoBatalhas');
+        const historico = await pool.query('SELECT hb.id, h1.nome AS nome_heroi_1, h2.nome AS nome_heroi_2, hv.nome AS nome_vencedor, hp.nome AS nome_perdedor FROM historicoBatalhas hb INNER JOIN herois h1 ON hb.heroi_1 = h1.id INNER JOIN herois h2 ON hb.heroi_2 = h2.id INNER JOIN herois hv ON hb.vencedor = hv.id INNER JOIN herois hp ON hb.perdedor = hp.id');
 
         res.status(200).json({
             total: historico.rowCount,
@@ -160,7 +160,7 @@ app.get('/herois/:heroi_1/:heroi_2', async (req, res) => {
             res.status(200).send('A batalha terminou em empate!');
         } else if (vencedor) {
             const resultado = await pool.query('SELECT * FROM herois WHERE id = $1', [vencedor]);
-            const resultadoTodo = await pool.query('SELECT * FROM historicoBatalhas WHERE id = $1', [vencedor]);
+            const resultadoTodo = await pool.query('SELECT hb.id, h1.nome AS nome_heroi_1, h2.nome AS nome_heroi_2, hv.nome AS nome_vencedor, hp.nome AS nome_perdedor FROM historicoBatalhas hb INNER JOIN herois h1 ON hb.heroi_1 = h1.id INNER JOIN herois h2 ON hb.heroi_2 = h2.id INNER JOIN herois hv ON hb.vencedor = hv.id INNER JOIN herois hp ON hb.perdedor = hp.id WHERE hb.id = $1', [vencedor]);
           
             res.status(200).send({
                 reultado: resultadoTodo.rows,
@@ -176,6 +176,26 @@ app.get('/herois/:heroi_1/:heroi_2', async (req, res) => {
     }
 });
 
+//pegar batalha por nome de heroi
+app.get('/batalha/nomeHeroi/:nome', async (req, res) => {
+    try {
+        const { nome } = req.params;
+
+        const nomePesquisa = `%${nome}%`;
+        const resultado = await pool.query('SELECT hb.id, h1.nome AS nome_heroi_1, h2.nome AS nome_heroi_2, hv.nome AS nome_vencedor, hp.nome AS nome_perdedor FROM historicoBatalhas hb INNER JOIN herois h1 ON hb.heroi_1 = h1.id INNER JOIN herois h2 ON hb.heroi_2 = h2.id INNER JOIN herois hv ON hb.vencedor = hv.id INNER JOIN herois hp ON hb.perdedor = hp.id   WHERE LOWER(h1.nome) LIKE LOWER($1) OR LOWER(h2.nome) LIKE LOWER($1) OR LOWER(hv.nome) LIKE LOWER($1) OR LOWER(hp.nome) LIKE LOWER($1)', [`%${nomePesquisa}%`]);
+        if (resultado.rowCount == 0) {
+            res.status(404).send('nome não encontrado');
+        } else {
+            res.json({
+                total: resultado.rowCount,
+                bruxo: resultado.rows
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao pesquisar herois pelo nome', error);
+        res.status(500).send('Erro ao pesquisar herois pelo nome');
+    }
+});
 app.listen(PORT, () => {
     console.log(`servidor rodando na porta ${PORT}⚡`);
 });
