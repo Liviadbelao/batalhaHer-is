@@ -14,6 +14,34 @@ const pool = new Pool({
 });
 app.use(express.json());
 
+
+//função batalha de heróis
+const batalha = async (heroi_1, heroi_2) => {
+    try {
+        const heroiQuery1 = await pool.query('SELECT * FROM herois WHERE id = $1', [heroi_1]);
+        const heroiQuery2 = await pool.query('SELECT * FROM herois WHERE id = $1', [heroi_2]);
+
+        const heroi1 = heroiQuery1.rows[0];
+        const heroi2 = heroiQuery2.rows[0];
+
+        let vencedor = null;
+        if (heroi1.level > heroi2.level) {
+            vencedor = heroi1;
+        } else if (heroi1.level < heroi2.level) {
+            vencedor = heroi2;
+        } else{
+           return "Empate"
+        }
+
+        return vencedor;
+    } catch (error) {
+        console.error('Erro ao realizar a batalha', error);
+        throw error; // Lança o erro para ser tratado na chamada da função
+    }
+};
+
+
+
 //rota de teste
 app.get('/', (req, res) => {
     res.send('a rota esta funcionando');
@@ -98,6 +126,27 @@ app.put('/herois/:id', async (req, res) => {
         res.status(500).send('erro ao atualizar heroi');
     }
 });
+
+//Rota batalha 
+app.get('/herois/:heroi_1/:heroi_2', async (req, res) => {
+    try {
+        const { heroi_1, heroi_2 } = req.params;
+
+        const vencedor = await batalha(heroi_1, heroi_2);
+
+        if (vencedor === "Empate") {
+            res.status(200).send('A batalha terminou em empate!');
+        } else if (vencedor) {
+            res.status(200).send(`Vencedor da batalha é ${vencedor.nome}`);
+        } else {
+            res.status(404).send('Heróis não encontrados');
+        }
+    } catch (error) {
+        console.error('Erro ao realizar a batalha', error);
+        res.status(500).send('Erro ao realizar a batalha');
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`servidor rodando na porta ${PORT}⚡`);
 });
