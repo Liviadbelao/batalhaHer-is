@@ -132,12 +132,12 @@ Antes de iniciar, certifique-se de ter o seguinte instalado em sua máquina:
 ### 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/sistema-batalha-herois.git```
+git clone https://github.com/seu-usuario/sistema-batalha-herois.git
+```
+## Instale dependencias:
+ ```npm install```
 
-- Instale dependencias:
-``` npm install```
-
--Inicie o servidor:
+## Inicie o servidor:
 ``` npm start```
 
 # Acessando os Endpoints
