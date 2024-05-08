@@ -39,6 +39,5 @@ Crie uma base de dados PostgreSQL chamada batalhaherois.
 Configure as credenciais de acesso no arquivo app.js.
 
 ## Executando o Sistema
-```
-npm start
+```npm start
 ```
