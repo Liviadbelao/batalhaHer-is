@@ -35,7 +35,15 @@ const batalha = async (heroi_1, heroi_2) => {
                 vencedor = heroi2.id;
                 perdedor = heroi1.id;
             } else {
-                return "Empate";
+                if (heroi1.hp > heroi2.hp) {
+                    vencedor = heroi1.id;
+                    perdedor = heroi2.id;
+                } else if (heroi1.hp < heroi2.hp) {
+                    vencedor = heroi2.id;
+                    perdedor = heroi1.id;
+                } else {
+                    return "Empate total"; 
+                }
             }
     
             // Registrar a batalha no histórico
@@ -154,19 +162,31 @@ app.get('/herois/:heroi_1/:heroi_2', async (req, res) => {
     try {
         const { heroi_1, heroi_2 } = req.params;
 
+
         const vencedor = await batalha(heroi_1, heroi_2);
 
-        if (vencedor === "Empate") {
-            res.status(200).send('A batalha terminou em empate!');
+        if (vencedor === "Empate total") {
+            res.status(200).send('A batalha terminou em empate total!');
         } else if (vencedor) {
-            const resultado = await pool.query('SELECT * FROM herois WHERE id = $1', [vencedor]);
-            const resultadoTodo = await pool.query('SELECT hb.id, h1.nome AS nome_heroi_1, h2.nome AS nome_heroi_2, hv.nome AS nome_vencedor, hp.nome AS nome_perdedor FROM historicoBatalhas hb INNER JOIN herois h1 ON hb.heroi_1 = h1.id INNER JOIN herois h2 ON hb.heroi_2 = h2.id INNER JOIN herois hv ON hb.vencedor = hv.id INNER JOIN herois hp ON hb.perdedor = hp.id WHERE hb.id = $1', [vencedor]);
-          
-            res.status(200).send({
-                reultado: resultadoTodo.rows,
-                vencedor: resultado.rows[0].nome,
-                vencedorLevel: resultado.rows[0].level
-            });
+
+            const winnerInfo = await pool.query('SELECT * FROM herois WHERE id = $1', [vencedor]);
+
+            if (winnerInfo.rowCount === 0) {
+                res.status(404).send('Informações do vencedor não encontradas');
+            } else {
+                const { nome, level, hp } = winnerInfo.rows[0];
+
+                res.status(200).json({
+                    resultado: {
+                        id: vencedor,
+                        nome_heroi_1: heroi_1,
+                        nome_heroi_2: heroi_2,
+                        nome_vencedor: nome,
+                        vencedorLevel: level,
+                        vencedorHp: hp
+                    }
+                });
+            }
         } else {
             res.status(404).send('Heróis não encontrados');
         }
@@ -175,6 +195,7 @@ app.get('/herois/:heroi_1/:heroi_2', async (req, res) => {
         res.status(500).send('Erro ao realizar a batalha');
     }
 });
+
 
 //pegar batalha por nome de heroi
 app.get('/batalha/nomeHeroi/:nome', async (req, res) => {
@@ -187,6 +208,7 @@ app.get('/batalha/nomeHeroi/:nome', async (req, res) => {
             res.status(404).send('nome não encontrado');
         } else {
             res.json({
+
                 total: resultado.rowCount,
                 bruxo: resultado.rows
             });
@@ -194,6 +216,26 @@ app.get('/batalha/nomeHeroi/:nome', async (req, res) => {
     } catch (error) {
         console.error('Erro ao pesquisar herois pelo nome', error);
         res.status(500).send('Erro ao pesquisar herois pelo nome');
+    }
+});
+//pegar heroi por nome 
+app.get('/herois/:nome', async (req, res) => {
+    try {
+        const { nome } = req.params;
+
+        const nomePesquisa = `%${nome}%`;
+        const resultado = await pool.query('SELECT * FROM herois WHERE LOWER(nome) LIKE LOWER($1)', [nomePesquisa]);
+        if (resultado.rowCount == 0) {
+            res.status(404).send('nome não encontrado');
+        } else {
+            res.json({
+                total: resultado.rowCount,
+                heroi: resultado.rows
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao pesquisar heori pelo nome', error);
+        res.status(500).send('Erro ao pesquisar heori pelo nome');
     }
 });
 app.listen(PORT, () => {
