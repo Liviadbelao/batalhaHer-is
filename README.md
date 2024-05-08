@@ -31,8 +31,7 @@ git clone https://github.com/seu-usuario/sistema-batalha-herois.git```
  2. Instale as dependências:
 ```
  cd sistema-batalha-herois
-npm install
-```
+npm install```
 
 3. Configure o banco de dados:
 Crie uma base de dados PostgreSQL chamada batalhaherois.
