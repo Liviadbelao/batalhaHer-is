@@ -115,3 +115,23 @@ Este projeto consiste em um sistema de batalha entre heróis, onde é possível 
 
 - Node.js instalado
 - PostgreSQL instalado e configurado com a base de dados `batalhaherois`
+
+# Como Executar o Sistema de Batalha de Heróis
+
+Este guia descreve os passos necessários para configurar e executar o sistema de batalha de heróis em seu ambiente local.
+
+## Pré-requisitos
+
+Antes de iniciar, certifique-se de ter o seguinte instalado em sua máquina:
+
+- Node.js
+- PostgreSQL configurado com a base de dados `batalhaherois`
+
+## Passos para Executar
+
+### 1. Clone o repositório:
+
+```bash
+git clone https://github.com/seu-usuario/sistema-batalha-herois.git
+
+
