@@ -132,6 +132,37 @@ Antes de iniciar, certifique-se de ter o seguinte instalado em sua máquina:
 ### 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/sistema-batalha-herois.git
+git clone https://github.com/seu-usuario/sistema-batalha-herois.git```
 
+- Instale dependencias:
+``` npm install```
+
+-Inicie o servidor:
+``` npm start```
+
+# Acessando os Endpoints
+
+Após iniciar o servidor, você pode acessar os endpoints do sistema utilizando um cliente HTTP, como Postman ou Insomnia, ou navegando diretamente pelo navegador.
+
+## Exemplo de Endpoints Disponíveis
+
+- **Listar todos os heróis:** `GET http://localhost:3000/herois`
+- **Criar um novo herói:** `POST http://localhost:3000/herois`
+- **Editar um herói existente:** `PUT http://localhost:3000/herois/:id`
+- **Deletar um herói:** `DELETE http://localhost:3000/herois/:id`
+- **Realizar uma batalha entre heróis:** `GET http://localhost:3000/herois/:heroi_1/:heroi_2`
+- **Obter o histórico de batalhas:** `GET http://localhost:3000/historico`
+- **Pesquisar batalhas por nome de herói:** `GET http://localhost:3000/batalha/nomeHeroi/:nome`
+
+Certifique-se de substituir `localhost:3000` pelo endereço e porta onde o servidor está sendo executado em seu ambiente local. Se necessário, substitua também os parâmetros dinâmicos, como `:id`, `:heroi_1`, `:heroi_2` e `:nome`, com valores válidos para interagir com os recursos específicos.
+
+## Exemplo de Uso
+
+Para listar todos os heróis cadastrados, faça uma requisição GET para `http://localhost:3000/herois` usando um cliente HTTP ou navegando diretamente pelo navegador.
+
+Lembre-se de ajustar os detalhes conforme necessário para o seu projeto específico.
+
+---
+
+Este guia fornece exemplos de como acessar e utilizar os endpoints do sistema de batalha de heróis. Se precisar de mais informações ou suporte, consulte a documentação do sistema ou entre em contato com o desenvolvedor.
 
