@@ -162,7 +162,5 @@ Para listar todos os heróis cadastrados, faça uma requisição GET para `http:
 
 Lembre-se de ajustar os detalhes conforme necessário para o seu projeto específico.
 
----
 
-Este guia fornece exemplos de como acessar e utilizar os endpoints do sistema de batalha de heróis. Se precisar de mais informações ou suporte, consulte a documentação do sistema ou entre em contato com o desenvolvedor.
 
